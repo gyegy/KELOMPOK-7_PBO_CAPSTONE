@@ -114,71 +114,26 @@ ERD Relational menggambarkan struktur tabel, atribut, primary key, foreign key, 
 
 ## 6. Struktur Folder/Package
 
-Proyek AeroCare dikelola dengan **Maven** dan menggunakan pola **MVC (Model–View–Controller)** yang dipisahkan lagi dengan lapisan **DAO** untuk akses basis data.
+Proyek AeroCare dikelola dengan **Maven** dan memisahkan kode berdasarkan tanggung jawab (model, view, controller, dan DAO).
 
 ```text
 KELOMPOK-7_PBO_CAPSTONE/
-├── pom.xml                          # konfigurasi Maven & dependency (MySQL Connector/J)
-├── nbactions.xml                    # konfigurasi run project NetBeans
+├── pom.xml                 # konfigurasi Maven dan dependency
 ├── README.md
 ├── docs/
-│   ├── images/                      # flowchart, use case, ERD
-│   └── screenshots/                 # screenshot GUI aplikasi
-└── src/
-    └── main/
-        ├── java/
-        │   └── com/mycompany/aerocare/
-        │       ├── AeroCare.java            # entry point aplikasi
-        │       ├── config/
-        │       │   ├── Koneksi.java         # konfigurasi koneksi JDBC ke MySQL
-        │       │   ├── Sesi.java            # penyimpanan sesi pengguna yang login
-        │       │   └── TestKoneksi.java     # pengecekan koneksi basis data
-        │       ├── controller/
-        │       │   ├── BaseController.java      # kelas abstrak induk controller
-        │       │   ├── AuthController.java      # autentikasi login & logout
-        │       │   ├── AdminController.java     # logika fitur Admin
-        │       │   └── ...                      # controller fitur lainnya
-        │       ├── dao/
-        │       │   ├── PenggunaDAO.java
-        │       │   ├── FasilitasDAO.java
-        │       │   ├── LaporanKerusakanDAO.java
-        │       │   ├── PenugasanDAO.java
-        │       │   ├── DetailPenugasanDAO.java
-        │       │   ├── ProgresPenangananDAO.java
-        │       │   └── RekapDAO.java
-        │       ├── model/
-        │       │   ├── Pengguna.java            # kelas abstrak (superclass)
-        │       │   ├── Admin.java               # subclass Pengguna
-        │       │   ├── Supervisor.java          # subclass Pengguna
-        │       │   ├── Petugas.java             # subclass Pengguna
-        │       │   ├── Fasilitas.java
-        │       │   ├── LaporanKerusakan.java
-        │       │   ├── Penugasan.java
-        │       │   └── ProgresPenanganan.java
-        │       ├── pengguna/
-        │       │   └── ...                      # tampilan login & keluar
-        │       └── view/
-        │           ├── LoginFrame.java
-        │           ├── DashboardAdmin.java
-        │           ├── DashboardSupervisor.java
-        │           ├── DashboardPetugas.java
-        │           ├── PenggunaFrame.java / PenggunaDialog.java / PenggunaView.java
-        │           ├── FasilitasFrame.java / FasilitasDialog.java / FasilitasView.java
-        │           ├── LaporanFrame.java / LaporanDialog.java / LaporanView.java
-        │           ├── PenugasanFrame.java / PenugasanView.java
-        │           ├── ProgresFrame.java / ProgresView.java
-        │           ├── RiwayatProgresFrame.java / RiwayatPenugasanFrame.java
-        │           ├── CariLaporanView.java
-        │           ├── RekapFrame.java / RekapitulasiView.java
-        │           ├── RiwayatGangguanFrame.java
-        │           ├── Sidebar.java / Header.java
-        │           ├── DialogKonfirmasi.java
-        │           ├── PrioritasRenderer.java
-        │           ├── SupervisorUtil.java
-        │           ├── ViewUtil.java / ViewHelper.java
-        │           └── *.form                   # form NetBeans (GUI builder)
-        └── resources/
-            └── images/                          # aset gambar dan logo aplikasi
+│   ├── images/             # flowchart, use case, ERD
+│   └── screenshots/        # screenshot GUI aplikasi
+└── src/main/
+    ├── java/com/mycompany/aerocare/
+    │   ├── AeroCare.java   # entry point aplikasi
+    │   ├── config/         # koneksi database dan sesi pengguna
+    │   ├── model/          # entitas dan hierarki pengguna
+    │   ├── dao/            # akses data (query SQL ke MySQL)
+    │   ├── controller/     # logika aplikasi dan validasi
+    │   ├── pengguna/       # tampilan login dan keluar
+    │   └── view/           # antarmuka Java Swing
+    └── resources/
+        └── images/         # aset gambar dan logo
 ```
 
 **Keterangan pembagian tanggung jawab tiap package:**
@@ -196,9 +151,9 @@ KELOMPOK-7_PBO_CAPSTONE/
 
 ## 7. Penjelasan Penerapan 4 Pilar OOP di dalam Program
 
-### 7.1 Enkapsulasi
+### 7.1 Encapsulation
 
-Enkapsulasi diterapkan dengan menyembunyikan atribut sebagai `private` dan menyediakan akses terkontrol melalui getter/setter atau method tertentu.
+Encapsulation diterapkan dengan menyembunyikan atribut sebagai `private` dan menyediakan akses terkontrol melalui getter/setter atau method tertentu.
 
 - Seluruh kelas pada package `model` (`Pengguna`, `Fasilitas`, `LaporanKerusakan`, `Penugasan`, `ProgresPenanganan`) menyimpan atributnya sebagai `private` dan hanya dapat diakses lewat getter/setter, misalnya `getNamaFasilitas()`, `setKondisi()`, dan `getStatusProgres()`.
 - Kelas `Sesi` menyimpan data sesi secara `private` dengan constructor `private`, sehingga objek sesi tidak dapat dibuat sembarangan dari luar kelas. Data sesi hanya diakses melalui method yang disediakan.
@@ -218,29 +173,9 @@ public class Fasilitas {
 }
 ```
 
-### 7.2 Abstraksi
+### 7.2 Inheritance
 
-Abstraksi diterapkan dengan menyembunyikan detail implementasi dan hanya menampilkan fungsi yang penting bagi pengguna kelas.
-
-- `Pengguna` merupakan **kelas abstrak** yang mendefinisikan method abstrak `getInformasiPeran()`. Setiap subclass wajib mengimplementasikan method tersebut sesuai karakteristik perannya.
-- `BaseController` adalah **kelas abstrak** yang menyediakan operasi umum bagi seluruh controller turunan, sehingga kode berulang tidak ditulis ulang.
-- Lapisan DAO (`PenggunaDAO`, `FasilitasDAO`, `LaporanKerusakanDAO`, `PenugasanDAO`, `DetailPenugasanDAO`, `ProgresPenangananDAO`, `RekapDAO`) menyembunyikan detail SQL dan JDBC. View hanya memanggil method seperti `ambilSemua()` atau `simpan()` tanpa mengetahui perintah SQL di dalamnya.
-- `SupervisorUtil` dan `ViewUtil` merangkum proses pengambilan serta pengolahan data, sehingga kelas GUI tidak perlu menangani logika tersebut secara langsung.
-
-```java
-public abstract class Pengguna {
-    private String idPengguna;
-    private String namaLengkap;
-
-    public abstract String getInformasiPeran();
-
-    public String getNamaLengkap() { return namaLengkap; }
-}
-```
-
-### 7.3 Pewarisan (Inheritance)
-
-Pewarisan diterapkan untuk menghindari duplikasi kode dan membangun hubungan "adalah sebuah" (is-a) antar kelas.
+Inheritance diterapkan untuk menghindari duplikasi kode dan membangun hubungan "adalah sebuah" (is-a) antar kelas.
 
 - `Admin`, `Supervisor`, dan `Petugas` merupakan subclass dari kelas abstrak `Pengguna`.
 - `AdminController` mewarisi `AuthController`, yang sebelumnya juga mewarisi `BaseController`. Dengan demikian terbentuk rantai pewarisan `AdminController` → `AuthController` → `BaseController`.
@@ -261,9 +196,9 @@ public class Petugas extends Pengguna {
 }
 ```
 
-### 7.4 Polimorfisme
+### 7.3 Polymorphism
 
-Polimorfisme diterapkan agar satu tipe data atau satu nama method dapat memiliki perilaku berbeda sesuai objek yang menjalankannya.
+Polymorphism diterapkan agar satu tipe data atau satu nama method dapat memiliki perilaku berbeda sesuai objek yang menjalankannya.
 
 - Method `getInformasiPeran()` di-override oleh `Admin`, `Supervisor`, dan `Petugas` dengan hasil berbeda sesuai peran.
 - `PenggunaDAO.ambilDataPengguna()` membentuk objek subclass (`Admin`, `Supervisor`, atau `Petugas`) berdasarkan nilai kolom `peran`, lalu mengembalikannya sebagai tipe `Pengguna`. Pemanggil cukup memakai tipe `Pengguna` tanpa perlu mengetahui kelas aslinya.
@@ -276,14 +211,34 @@ Pengguna p = PenggunaDAO.ambilDataPengguna(username);   // bisa Admin, Superviso
 System.out.println(p.getInformasiPeran());               // hasil berbeda sesuai objek aslinya
 ```
 
+### 7.4 Abstraction
+
+Abstraction diterapkan dengan menyembunyikan detail implementasi dan hanya menampilkan fungsi yang penting bagi pengguna kelas.
+
+- `Pengguna` merupakan **kelas abstrak** yang mendefinisikan method abstrak `getInformasiPeran()`. Setiap subclass wajib mengimplementasikan method tersebut sesuai karakteristik perannya.
+- `BaseController` adalah **kelas abstrak** yang menyediakan operasi umum bagi seluruh controller turunan, sehingga kode berulang tidak ditulis ulang.
+- Lapisan DAO (`PenggunaDAO`, `FasilitasDAO`, `LaporanKerusakanDAO`, `PenugasanDAO`, `DetailPenugasanDAO`, `ProgresPenangananDAO`, `RekapDAO`) menyembunyikan detail SQL dan JDBC. View hanya memanggil method seperti `ambilSemua()` atau `simpan()` tanpa mengetahui perintah SQL di dalamnya.
+- `SupervisorUtil` dan `ViewUtil` merangkum proses pengambilan serta pengolahan data, sehingga kelas GUI tidak perlu menangani logika tersebut secara langsung.
+
+```java
+public abstract class Pengguna {
+    private String idPengguna;
+    private String namaLengkap;
+
+    public abstract String getInformasiPeran();
+
+    public String getNamaLengkap() { return namaLengkap; }
+}
+```
+
 **Ringkasan penerapan:**
 
 | Pilar OOP | Bentuk Penerapan | Contoh Kelas / Method |
 |---|---|---|
-| Enkapsulasi | Atribut `private` + getter/setter, constructor `private` | `Pengguna`, `Fasilitas`, `Sesi`, `Header` |
-| Abstraksi | Kelas abstrak dan method abstrak, penyembunyian detail SQL | `Pengguna`, `BaseController`, seluruh kelas DAO |
-| Pewarisan | Subclass mewarisi superclass dan komponen Swing | `Admin`/`Supervisor`/`Petugas` extends `Pengguna`; frame extends `JFrame` |
-| Polimorfisme | Method overriding, objek subclass dalam tipe superclass, `instanceof` | `getInformasiPeran()`, `PenggunaDAO.ambilDataPengguna()`, `PrioritasRenderer` |
+| Encapsulation | Atribut `private` + getter/setter, constructor `private` | `Pengguna`, `Fasilitas`, `Sesi`, `Header` |
+| Inheritance | Subclass mewarisi superclass dan komponen Swing | `Admin`/`Supervisor`/`Petugas` extends `Pengguna`; frame extends `JFrame` |
+| Polymorphism | Method overriding, objek subclass dalam tipe superclass, `instanceof` | `getInformasiPeran()`, `PenggunaDAO.ambilDataPengguna()`, `PrioritasRenderer` |
+| Abstraction | Kelas abstrak dan method abstrak, penyembunyian detail SQL | `Pengguna`, `BaseController`, seluruh kelas DAO |
 
 ## 8. Cara Penggunaan Program
 
@@ -320,7 +275,7 @@ System.out.println(p.getInformasiPeran());               // hasil berbeda sesuai
 3. Sistem memeriksa username, kecocokan password, dan status akun. Jika gagal, muncul pesan "Login gagal: username/password salah atau akun nonaktif".
 4. Jika berhasil, sesi pengguna disimpan dan sistem menampilkan menu sesuai peran: **Admin**, **Supervisor**, atau **Petugas**.
 
-![Tampilan Login AeroCare](docs/screenshots/login.png)
+<img width="513" height="349" alt="image" src="https://github.com/user-attachments/assets/df5d4aee-bd41-4a5f-a69f-ba8910910a8b" />
 
 ### 8.4 Penggunaan oleh Admin
 
@@ -335,7 +290,8 @@ Admin bertanggung jawab atas data pengguna, data fasilitas, laporan kerusakan, d
 5. Untuk mengubah data, pilih baris pada tabel lalu klik **Ubah**. Username dan peran tidak dapat diubah; password boleh dikosongkan agar tidak berubah.
 6. Akun sendiri tidak dapat dinonaktifkan.
 
-![Kelola Data Pengguna](docs/screenshots/kelola-pengguna.png)
+<img width="978" height="568" alt="image" src="https://github.com/user-attachments/assets/c2c9fcb6-a012-4605-8394-22e1fa6fea9c" />
+
 
 **b. Kelola Data Fasilitas**
 
@@ -345,7 +301,7 @@ Admin bertanggung jawab atas data pengguna, data fasilitas, laporan kerusakan, d
 4. Pilih baris lalu klik **Ubah** untuk memperbarui data.
 5. Untuk menghapus, pilih baris lalu klik **Hapus**. Fasilitas yang sudah memiliki riwayat laporan kerusakan tidak dapat dihapus dan akan menampilkan pesan penolakan.
 
-![Kelola Data Fasilitas](docs/screenshots/kelola-fasilitas.png)
+<img width="976" height="571" alt="image" src="https://github.com/user-attachments/assets/1bc2ce6d-db8d-4938-bf94-e581e0da72a6" />
 
 **c. Pengelolaan Laporan Kerusakan**
 
@@ -354,7 +310,8 @@ Admin bertanggung jawab atas data pengguna, data fasilitas, laporan kerusakan, d
 3. Klik **Simpan**. Sistem membuat `id_laporan` otomatis, menetapkan tanggal hari ini, status **Menunggu**, dan mengubah kondisi fasilitas menjadi **Rusak**.
 4. Laporan hanya dapat diubah selama statusnya masih **Menunggu**.
 
-![Pengelolaan Laporan Kerusakan](docs/screenshots/laporan-kerusakan.png)
+<img width="979" height="548" alt="image" src="https://github.com/user-attachments/assets/68a0ba97-f981-4f2c-8693-2b55828e772d" />
+
 
 **d. Cari Laporan**
 
@@ -363,11 +320,15 @@ Admin bertanggung jawab atas data pengguna, data fasilitas, laporan kerusakan, d
 3. Klik **Cari** untuk menampilkan hasil, atau **Reset** untuk mengosongkan filter.
 4. Klik kolom **Aksi** pada baris hasil untuk melihat detail laporan, petugas penanggung jawab, catatan, dan riwayat progres.
 
-![Pencarian Laporan](docs/screenshots/cari-laporan.png)
+<img width="1273" height="568" alt="image" src="https://github.com/user-attachments/assets/8e8cc316-67f8-4051-838c-e703cc4c1e13" />
+
 
 ### 8.5 Penggunaan oleh Supervisor
 
 Supervisor bertanggung jawab atas penugasan petugas, pemantauan progres, dan rekapitulasi laporan.
+
+<img width="976" height="570" alt="image" src="https://github.com/user-attachments/assets/3d50d273-a1cb-4c98-9d1f-04e5c38aab98" />
+
 
 **a. Penugasan Laporan ke Petugas**
 
@@ -378,14 +339,13 @@ Supervisor bertanggung jawab atas penugasan petugas, pemantauan progres, dan rek
 5. Isi catatan penugasan bila perlu (opsional, maksimal 150 karakter), lalu klik **Simpan**.
 6. Sistem membuat data `PENUGASAN` dan `DETAIL_PENUGASAN`, serta mengubah status laporan menjadi **Ditugaskan**.
 
-![Penugasan Laporan](docs/screenshots/penugasan.png)
+<img width="992" height="610" alt="image" src="https://github.com/user-attachments/assets/72f3d959-0394-4ab4-be7f-9839f0b775eb" />
+
 
 **b. Pantau Progres Penugasan**
 
 1. Buka menu **Pantau Progres**.
 2. Pilih penugasan untuk melihat riwayat progres penanganan beserta waktu update dan tindakan yang dilakukan petugas.
-
-![Pantau Progres](docs/screenshots/pantau-progres.png)
 
 **c. Rekap Laporan**
 
@@ -395,7 +355,6 @@ Supervisor bertanggung jawab atas penugasan petugas, pemantauan progres, dan rek
 4. Pilih salah satu fasilitas lalu klik **Lihat Riwayat Gangguan** untuk melihat riwayat gangguan dan penanganannya.
 5. Klik **Reset** untuk menghapus filter periode.
 
-![Rekap Laporan](docs/screenshots/rekap-laporan.png)
 
 ### 8.6 Penggunaan oleh Petugas
 
@@ -409,9 +368,11 @@ Petugas bertanggung jawab melihat tugas dan mencatat progres penanganan.
 6. Klik **Simpan Progres**. Jika status dipilih **Selesai**, sistem menutup penugasan, mengubah laporan menjadi **Selesai**, dan mengembalikan kondisi fasilitas menjadi **Baik**.
 7. Buka menu **Riwayat Progres Saya** untuk melihat seluruh progres yang pernah dicatat, diurutkan dari waktu update terbaru.
 
-![Dashboard Petugas](docs/screenshots/dashboard-petugas.png)
+<img width="857" height="550" alt="image" src="https://github.com/user-attachments/assets/6f0ee1cf-d085-4049-a657-24e3630226fc" />
 
-![Perbarui Progres Penanganan](docs/screenshots/perbarui-progres.png)
+
+<img width="971" height="545" alt="image" src="https://github.com/user-attachments/assets/9a1ec8a8-68a0-4388-be04-d6e68f06c675" />
+
 
 ### 8.7 Logout
 
